@@ -1,6 +1,8 @@
 #include "helpers.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //quicksort
 
@@ -84,35 +86,76 @@ void quick_sort(int* array, int start, int end) {
 
 PriorityQueue* create_priority_queue() {
   int max_nodes = 8;
-  PriorityQueue* memory = malloc(sizeof(PriorityQueue) + sizeof(QueueNode) * max_nodes);
+  PriorityQueue* priority_queue = malloc(sizeof(PriorityQueue));
+  QueueNode* queue_nodes = malloc(sizeof(QueueNode) * max_nodes);
 
   PriorityQueue queue;
   queue._start = 0;
   queue._end = 0;
   queue._max_nodes = 8;
+  queue._queue = queue_nodes;
 
-  *memory = queue;
+  *priority_queue = queue;
 
-  return memory;
+  return priority_queue;
 }
 
 int get_length_priority_queue(PriorityQueue* priority_queue) {
-  const int calc = priority_queue->_end - priority_queue->_start;
-  return calc;
+  if (priority_queue->_start > priority_queue->_end) {
+    return priority_queue->_max_nodes - priority_queue->_start + priority_queue->_end;
+  } else {    
+    return priority_queue->_end - priority_queue->_start;
+  }
 }
 
 QueueNode* get_nth(PriorityQueue* priority_queue, int nth) { 
-  return (QueueNode*)priority_queue + sizeof(PriorityQueue) + nth * sizeof(QueueNode);
+  const int idx = (priority_queue->_start + nth) % priority_queue->_max_nodes;
+  QueueNode* node_ref = &priority_queue->_queue[idx];
+  return node_ref;
 }
 
 void enqueue_priority_queue(PriorityQueue* priority_queue, QueueNode node) {
   *get_nth(priority_queue, priority_queue->_end) = node;
-  priority_queue->_end += 1;
+  priority_queue->_end += 1; 
+
+  const int length = get_length_priority_queue(priority_queue);
+  
+  if (length+1 == priority_queue->_max_nodes) {
+    const int max_nodes = priority_queue->_max_nodes;
+    const int start = priority_queue->_start; 
+    const int end = priority_queue->_end; 
+
+    QueueNode* new_queue = malloc(sizeof(QueueNode) * max_nodes * 2);
+
+    printf("reallocation\n");
+
+    if (start < end) {
+      memcpy(new_queue, &priority_queue->_queue[start], sizeof(QueueNode) * end); 
+
+      priority_queue->_end -= priority_queue->_start;
+      priority_queue->_start = 0;
+    } else {
+      const int end_difference = (max_nodes - start);
+
+      memcpy(new_queue, &priority_queue->_queue[start], sizeof(QueueNode) * end_difference); 
+      memcpy(&new_queue[end_difference], &priority_queue->_queue[0], sizeof(QueueNode) * end); 
+   
+      priority_queue->_end = end_difference + end;
+      priority_queue->_start = 0;
+    }
+
+    priority_queue->_max_nodes *= 2;
+    priority_queue->_queue = new_queue;
+  }
+
+  priority_queue->_end %= priority_queue->_max_nodes;
 }
 
 QueueNode* dequeue_priority_queue(PriorityQueue* priority_queue) {
   QueueNode* queue_node = get_nth(priority_queue, 0);
   priority_queue->_start += 1;
+  
+  priority_queue->_start %= priority_queue->_max_nodes;
 
   return queue_node;
 }

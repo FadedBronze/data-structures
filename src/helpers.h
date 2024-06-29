@@ -9,6 +9,7 @@ typedef struct PriorityQueue {
   int _start;
   int _end;
   int _max_nodes;
+  QueueNode* _queue;
 } PriorityQueue;
 
 PriorityQueue* create_priority_queue();

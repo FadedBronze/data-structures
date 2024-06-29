@@ -40,16 +40,15 @@ int main() {
   node.weight = 10;
   node.ref = (void*)msg;
 
+  srand(time(NULL)); 
 
-  srand(time(NULL));
-
-  while (1) {
+  for (int i = 0; i < 1000; i++) {
     int num = rand();
     
     enqueue_priority_queue(priority_queue, node);
     node.weight = num;
   
-    dequeue_priority_queue(priority_queue);
+    //dequeue_priority_queue(priority_queue);
 
     print_priority_queue(priority_queue, print_string);
   } 
