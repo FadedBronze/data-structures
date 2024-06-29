@@ -82,11 +82,11 @@ void quick_sort(int* array, int start, int end) {
   quick_sort(array, j, end);
 }
 
-//priority queue list
+//ring buffer list
 
-PriorityQueue* create_priority_queue() {
+PriorityQueue* create_ring_buffer() {
   int max_nodes = 8;
-  PriorityQueue* priority_queue = malloc(sizeof(PriorityQueue));
+  PriorityQueue* ring_buffer = malloc(sizeof(PriorityQueue));
   QueueNode* queue_nodes = malloc(sizeof(QueueNode) * max_nodes);
 
   PriorityQueue queue;
@@ -95,103 +95,103 @@ PriorityQueue* create_priority_queue() {
   queue._max_nodes = 8;
   queue._queue = queue_nodes;
 
-  *priority_queue = queue;
+  *ring_buffer = queue;
 
-  return priority_queue;
+  return ring_buffer;
 }
 
-int get_length_priority_queue(PriorityQueue* priority_queue) {
-  if (priority_queue->_start > priority_queue->_end) {
-    return priority_queue->_max_nodes - priority_queue->_start + priority_queue->_end;
+int get_length_ring_buffer(PriorityQueue* ring_buffer) {
+  if (ring_buffer->_start > ring_buffer->_end) {
+    return ring_buffer->_max_nodes - ring_buffer->_start + ring_buffer->_end;
   } else {    
-    return priority_queue->_end - priority_queue->_start;
+    return ring_buffer->_end - ring_buffer->_start;
   }
 }
 
 
-QueueNode* get_nth(PriorityQueue* priority_queue, int nth) { 
-  const int idx = (priority_queue->_start + nth) % priority_queue->_max_nodes;
-  if (idx >= get_length_priority_queue(priority_queue)) {
+QueueNode* get_nth(PriorityQueue* ring_buffer, int nth) { 
+  const int idx = (ring_buffer->_start + nth) % ring_buffer->_max_nodes;
+  if (idx >= get_length_ring_buffer(ring_buffer)) {
     fprintf(stderr, "out of bounds\n");
     return NULL;
   } 
-  QueueNode* node_ref = &priority_queue->_queue[idx];
+  QueueNode* node_ref = &ring_buffer->_queue[idx];
   return node_ref;
 }
 
-QueueNode* _get_nth(PriorityQueue* priority_queue, int nth) { 
-  const int idx = (priority_queue->_start + nth) % priority_queue->_max_nodes;
-  QueueNode* node_ref = &priority_queue->_queue[idx];
+QueueNode* _get_nth(PriorityQueue* ring_buffer, int nth) { 
+  const int idx = (ring_buffer->_start + nth) % ring_buffer->_max_nodes;
+  QueueNode* node_ref = &ring_buffer->_queue[idx];
   return node_ref;
 }
 
-void enqueue_priority_queue(PriorityQueue* priority_queue, QueueNode node) {
-  const int length = get_length_priority_queue(priority_queue); 
+void enqueue_ring_buffer(PriorityQueue* ring_buffer, QueueNode node) {
+  const int length = get_length_ring_buffer(ring_buffer); 
   
-  *_get_nth(priority_queue, length) = node;
+  *_get_nth(ring_buffer, length) = node;
 
-  priority_queue->_end += 1; 
+  ring_buffer->_end += 1; 
   
-  if (length + 1 == priority_queue->_max_nodes) {
-    const int max_nodes = priority_queue->_max_nodes;
-    const int start = priority_queue->_start; 
-    const int end = priority_queue->_end; 
+  if (length + 1 == ring_buffer->_max_nodes) {
+    const int max_nodes = ring_buffer->_max_nodes;
+    const int start = ring_buffer->_start; 
+    const int end = ring_buffer->_end; 
 
     QueueNode* new_queue = malloc(sizeof(QueueNode) * max_nodes * 2);
 
     printf("reallocation\n");
 
     if (start < end) {
-      memcpy(new_queue, &priority_queue->_queue[start], sizeof(QueueNode) * end); 
+      memcpy(new_queue, &ring_buffer->_queue[start], sizeof(QueueNode) * end); 
 
-      priority_queue->_end -= priority_queue->_start;
-      priority_queue->_start = 0;
+      ring_buffer->_end -= ring_buffer->_start;
+      ring_buffer->_start = 0;
     } else {
       const int end_difference = (max_nodes - start);
 
-      memcpy(new_queue, &priority_queue->_queue[start], sizeof(QueueNode) * end_difference); 
-      memcpy(&new_queue[end_difference], &priority_queue->_queue[0], sizeof(QueueNode) * end); 
+      memcpy(new_queue, &ring_buffer->_queue[start], sizeof(QueueNode) * end_difference); 
+      memcpy(&new_queue[end_difference], &ring_buffer->_queue[0], sizeof(QueueNode) * end); 
    
-      priority_queue->_end = end_difference + end;
-      priority_queue->_start = 0;
+      ring_buffer->_end = end_difference + end;
+      ring_buffer->_start = 0;
     }
 
-    priority_queue->_max_nodes *= 2;
-    priority_queue->_queue = new_queue;
+    ring_buffer->_max_nodes *= 2;
+    ring_buffer->_queue = new_queue;
   }
 
-  priority_queue->_end %= priority_queue->_max_nodes;
+  ring_buffer->_end %= ring_buffer->_max_nodes;
 }
 
-QueueNode* dequeue_priority_queue(PriorityQueue* priority_queue) {
-  if (get_length_priority_queue(priority_queue) == 0) {
+QueueNode* dequeue_ring_buffer(PriorityQueue* ring_buffer) {
+  if (get_length_ring_buffer(ring_buffer) == 0) {
     fprintf(stderr, "none left\n"); 
     return NULL;
   }
 
-  QueueNode* queue_node = _get_nth(priority_queue, 0);
-  priority_queue->_start += 1;
+  QueueNode* queue_node = _get_nth(ring_buffer, 0);
+  ring_buffer->_start += 1;
   
-  priority_queue->_start %= priority_queue->_max_nodes;
+  ring_buffer->_start %= ring_buffer->_max_nodes;
 
   return queue_node;
 }
 
-void insert_priority_queue(PriorityQueue* priority_queue, QueueNode node) {
+void insert_ring_buffer(PriorityQueue* ring_buffer, QueueNode node) {
   
 }
 
-void print_priority_queue(PriorityQueue* priority_queue, PrintStructFunction fn) {
-  const int length = get_length_priority_queue(priority_queue);
+void print_ring_buffer(PriorityQueue* ring_buffer, PrintStructFunction fn) {
+  const int length = get_length_ring_buffer(ring_buffer);
   
   printf("Properties:\n");
-  printf("  _start: %i\n", priority_queue->_start); 
-  printf("  _end: %i\n", priority_queue->_end); 
-  printf("  _max_nodes: %i\n", priority_queue->_max_nodes); 
+  printf("  _start: %i\n", ring_buffer->_start); 
+  printf("  _end: %i\n", ring_buffer->_end); 
+  printf("  _max_nodes: %i\n", ring_buffer->_max_nodes); 
 
   printf("\nNodes (%i): \n", length);
   for (int i = 0; i < length; i++) {
-    QueueNode queue_node = *_get_nth(priority_queue, i);
+    QueueNode queue_node = *_get_nth(ring_buffer, i);
     printf("  weight: %i\n", queue_node.weight); 
 
     if (fn == NULL) {

@@ -1,29 +1,29 @@
 #pragma once
 
-typedef struct QueueNode {
+typedef struct Node {
   const void* ref;
   int weight;
 } QueueNode;
 
-typedef struct PriorityQueue {
+typedef struct RingBuffer {
   int _start;
   int _end;
   int _max_nodes;
   QueueNode* _queue;
 } PriorityQueue;
 
-PriorityQueue* create_priority_queue();
+PriorityQueue* create_ring_buffer();
 
-void enqueue_priority_queue(PriorityQueue* priority_queue, QueueNode node);
+void enqueue_ring_buffer(PriorityQueue* priority_queue, QueueNode node);
 
-QueueNode* dequeue_priority_queue(PriorityQueue* priority_queue);
+QueueNode* dequeue_ring_buffer(PriorityQueue* priority_queue);
 
-QueueNode* get_nth(PriorityQueue* priority_queue, int nth);
+QueueNode* get_nth_ring_buffer(PriorityQueue* priority_queue, int nth);
 
-int get_length_priority_queue(PriorityQueue* priority_queue);
+int get_length_ring_buffer(PriorityQueue* priority_queue);
 
 typedef void (*PrintStructFunction) (const void* ref);
 
-void print_priority_queue(PriorityQueue* priority_queue, PrintStructFunction fn);
+void print_ring_buffer(PriorityQueue* priority_queue, PrintStructFunction fn);
 
 void quick_sort(int* array, int start, int end);

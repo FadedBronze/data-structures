@@ -35,24 +35,23 @@ int main() {
 
   const char* msg = "hello node\n";
  
-  PriorityQueue* priority_queue = create_priority_queue();
+  PriorityQueue* ring_buffer = create_ring_buffer();
   QueueNode node;
   node.weight = 10;
   node.ref = (void*)msg;
 
   srand(time(NULL)); 
 
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 200; i++) {
     int num = rand();
     
-    enqueue_priority_queue(priority_queue, node);
+    enqueue_ring_buffer(ring_buffer, node);
     node.weight = num;
 
-    dequeue_priority_queue(priority_queue);
-    dequeue_priority_queue(priority_queue);
+    if (i % 5 == 0) {   
+      dequeue_ring_buffer(ring_buffer);
+    }
 
-    get_nth(priority_queue, i);
-
-    print_priority_queue(priority_queue, print_string);
+    print_ring_buffer(ring_buffer, print_string);
   } 
 }
