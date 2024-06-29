@@ -113,6 +113,7 @@ void enqueue_priority_queue(PriorityQueue* priority_queue, QueueNode node) {
 QueueNode* dequeue_priority_queue(PriorityQueue* priority_queue) {
   QueueNode* queue_node = get_nth(priority_queue, 0);
   priority_queue->_start += 1;
+
   return queue_node;
 }
 
