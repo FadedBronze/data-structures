@@ -42,13 +42,16 @@ int main() {
 
   srand(time(NULL)); 
 
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < 20; i++) {
     int num = rand();
     
     enqueue_priority_queue(priority_queue, node);
     node.weight = num;
-  
-    //dequeue_priority_queue(priority_queue);
+
+    dequeue_priority_queue(priority_queue);
+    dequeue_priority_queue(priority_queue);
+
+    get_nth(priority_queue, i);
 
     print_priority_queue(priority_queue, print_string);
   } 

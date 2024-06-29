@@ -14,14 +14,16 @@ typedef struct PriorityQueue {
 
 PriorityQueue* create_priority_queue();
 
-QueueNode* dequeue_priority_queue(PriorityQueue* priority_queue);
-
 void enqueue_priority_queue(PriorityQueue* priority_queue, QueueNode node);
 
-int get_length_priority_queue(PriorityQueue* priority_queue);
+QueueNode* dequeue_priority_queue(PriorityQueue* priority_queue);
 
-void quick_sort(int* array, int start, int end);
+QueueNode* get_nth(PriorityQueue* priority_queue, int nth);
+
+int get_length_priority_queue(PriorityQueue* priority_queue);
 
 typedef void (*PrintStructFunction) (const void* ref);
 
 void print_priority_queue(PriorityQueue* priority_queue, PrintStructFunction fn);
+
+void quick_sort(int* array, int start, int end);

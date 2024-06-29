@@ -108,19 +108,31 @@ int get_length_priority_queue(PriorityQueue* priority_queue) {
   }
 }
 
+
 QueueNode* get_nth(PriorityQueue* priority_queue, int nth) { 
+  const int idx = (priority_queue->_start + nth) % priority_queue->_max_nodes;
+  if (idx >= get_length_priority_queue(priority_queue)) {
+    fprintf(stderr, "out of bounds\n");
+    return NULL;
+  } 
+  QueueNode* node_ref = &priority_queue->_queue[idx];
+  return node_ref;
+}
+
+QueueNode* _get_nth(PriorityQueue* priority_queue, int nth) { 
   const int idx = (priority_queue->_start + nth) % priority_queue->_max_nodes;
   QueueNode* node_ref = &priority_queue->_queue[idx];
   return node_ref;
 }
 
 void enqueue_priority_queue(PriorityQueue* priority_queue, QueueNode node) {
-  *get_nth(priority_queue, priority_queue->_end) = node;
-  priority_queue->_end += 1; 
-
-  const int length = get_length_priority_queue(priority_queue);
+  const int length = get_length_priority_queue(priority_queue); 
   
-  if (length+1 == priority_queue->_max_nodes) {
+  *_get_nth(priority_queue, length) = node;
+
+  priority_queue->_end += 1; 
+  
+  if (length + 1 == priority_queue->_max_nodes) {
     const int max_nodes = priority_queue->_max_nodes;
     const int start = priority_queue->_start; 
     const int end = priority_queue->_end; 
@@ -152,7 +164,12 @@ void enqueue_priority_queue(PriorityQueue* priority_queue, QueueNode node) {
 }
 
 QueueNode* dequeue_priority_queue(PriorityQueue* priority_queue) {
-  QueueNode* queue_node = get_nth(priority_queue, 0);
+  if (get_length_priority_queue(priority_queue) == 0) {
+    fprintf(stderr, "none left\n"); 
+    return NULL;
+  }
+
+  QueueNode* queue_node = _get_nth(priority_queue, 0);
   priority_queue->_start += 1;
   
   priority_queue->_start %= priority_queue->_max_nodes;
@@ -174,7 +191,7 @@ void print_priority_queue(PriorityQueue* priority_queue, PrintStructFunction fn)
 
   printf("\nNodes (%i): \n", length);
   for (int i = 0; i < length; i++) {
-    QueueNode queue_node = *get_nth(priority_queue, i);
+    QueueNode queue_node = *_get_nth(priority_queue, i);
     printf("  weight: %i\n", queue_node.weight); 
 
     if (fn == NULL) {
