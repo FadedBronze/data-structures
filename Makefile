@@ -1,5 +1,5 @@
 build:
-	gcc -Wall ./src/*.c -o test
+	gcc -Wall ./src/*.c -lm -o test
 run:
 	./test
 clean:
