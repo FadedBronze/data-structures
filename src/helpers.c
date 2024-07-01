@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdbool.h>
 
 //quicksort
 
@@ -245,17 +246,41 @@ void insert_priority_queue(PriorityQueue* priority_queue, const PriorityQueueNod
   priority_queue->_nodes[priority_queue->length] = *node;
   priority_queue->length += 1;
 
+  if (priority_queue->length == priority_queue->_max_nodes) {
+    PriorityQueueNode* new_queue_nodes = malloc(priority_queue->_max_nodes * 2 * sizeof(PriorityQueueNode));
+   
+    memcpy(new_queue_nodes, priority_queue->_nodes, priority_queue->_max_nodes * sizeof(PriorityQueueNode));
+
+    priority_queue->_nodes = new_queue_nodes;
+    priority_queue->_max_nodes *= 2;
+  }
+
   insert_recurse(priority_queue, priority_queue->length-1);
 };
 
 void left_pad(const char* str, char* dest, int str_length, int dest_length) {
   int diff = dest_length - str_length; 
-  memcpy(&dest[diff], str, str_length);
+
+  memcpy(&dest[diff], str, str_length * sizeof(char));
+
   memset(dest, ' ', diff); 
+
+  dest[dest_length-1] = 0;
 }
 
-int magic(int num_size) {
-  return (int)((ceil(log10(num_size))+1)*sizeof(char));
+int magic(int num) {
+  if (num == 0 || num == 1) return 2;
+  return ceil(log10(num))+1;
+}
+
+int max(int a, int b) {
+  if (a > b) return a;
+  return b;
+}
+
+int min(int a, int b) {
+  if (a < b) return a;
+  return b;
 }
 
 void print_priority_queue(PriorityQueue* priority_queue, PrintStructFunction fn) {
@@ -269,32 +294,91 @@ void print_priority_queue(PriorityQueue* priority_queue, PrintStructFunction fn)
     printf("  weight: %i\n", node->weight);
     
     if (fn == NULL) {
-      printf("  reference: %i\n", node->weight);
+      printf("  reference: %p\n", node->ref);
     } else {
       fn(node->ref);
     }
   }
 
-  int last = 0;
+  if (priority_queue->length == 0) return;
 
-  printf("\nTree:\n");
-  for (int i = 1; i < priority_queue->length; i += i) {
-    for (int j = last-1; j < i-1; j++) {
-      const int node_weight = priority_queue->_nodes[j].weight;
+  int bottom_nodes = ceil(log2(priority_queue->length))+1;
+  int max_node_width_estimate = magic(priority_queue->_nodes[priority_queue->length-1].weight);
 
-      char print_node[16];
-      char padded_node[16];
+  printf("%d \n", max_node_width_estimate);
+  
+  int i = 1;
+
+  printf("Tree (%d depth): \n", bottom_nodes);
+
+  while (i <= priority_queue->length) {
+    int last = i;
+    i *= 2;
+    i = min(i, priority_queue->length+1);
+
+    for (int j = last - 1; j < i - 1; j++) {
+      int node_value = priority_queue->_nodes[j].weight;
+
+      char node_str[16];
+      sprintf(node_str, "%d", node_value); 
       
-      sprintf(print_node, "(%d)", node_weight);
+      char padded_str[16];
+
+      left_pad(node_str, padded_str, magic(node_value), max_node_width_estimate);
       
-      left_pad(print_node, padded_node, magic(node_weight), 8);
-   
-      printf("%s ", padded_node);
+      printf("%s ", padded_str);
     }
+
     printf("\n");
-    last = i;
-  } 
+  }
 }
 
-const PriorityQueueNode* pop_priority_queue(PriorityQueue* priority_queue);
-const PriorityQueueNode* peek_priority_queue(PriorityQueue* priority_queue);
+#define greater_than_left (current_node->weight > left_node->weight)
+#define greater_than_right (current_node->weight > right_node->weight)
+#define left_greater (left_node->weight > right_node->weight)
+
+void pop_priority_queue_recurse(PriorityQueue* priority_queue, int node) {
+  if (node >= priority_queue->length) return; 
+
+  PriorityQueueNode* current_node = &priority_queue->_nodes[node];
+
+  const int left_idx = node * 2 + 1;
+  PriorityQueueNode* left_node = &priority_queue->_nodes[left_idx];
+  
+  const int right_idx = node * 2 + 2;
+  PriorityQueueNode* right_node = &priority_queue->_nodes[right_idx];
+
+  const bool left_null = left_idx >= priority_queue->length;
+  const bool right_null = right_idx >= priority_queue->length; 
+
+  if (!left_null && greater_than_left && (!left_greater || !greater_than_right)) {
+    swap_nodes(left_node, current_node); 
+    pop_priority_queue_recurse(priority_queue, left_idx);
+  } else if (!right_null && greater_than_right && (left_greater || !greater_than_left)) {
+    swap_nodes(right_node, current_node); 
+    pop_priority_queue_recurse(priority_queue, right_idx);
+  }
+}
+
+#undef greater_than_right
+#undef greater_than_left
+#undef left_greater
+
+PriorityQueueNode pop_priority_queue(PriorityQueue* priority_queue) {
+  if (priority_queue->length == 0) {
+    PriorityQueueNode empty = {};
+    return empty;
+  }
+
+  const PriorityQueueNode root = priority_queue->_nodes[0];
+  priority_queue->_nodes[0] = priority_queue->_nodes[priority_queue->length-1];
+  priority_queue->length -= 1; 
+  pop_priority_queue_recurse(priority_queue, 0);
+  return root;
+};
+
+const PriorityQueueNode* peek_priority_queue(PriorityQueue* priority_queue) {
+  return &priority_queue->_nodes[priority_queue->length-1];
+}
+
+//

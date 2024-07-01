@@ -44,7 +44,7 @@ PriorityQueue* create_priority_queue();
 void destroy_priority_queue(PriorityQueue* priority_queue);
 
 void insert_priority_queue(PriorityQueue* priority_queue, const PriorityQueueNode* node);
-const PriorityQueueNode* pop_priority_queue(PriorityQueue* priority_queue);
+PriorityQueueNode pop_priority_queue(PriorityQueue* priority_queue);
 
 const PriorityQueueNode* peek_priority_queue(PriorityQueue* priority_queue);
 
