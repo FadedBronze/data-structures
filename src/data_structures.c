@@ -233,8 +233,8 @@ void insert_recurse(PriorityQueue* priority_queue, int idx) {
   int parent_idx = (idx - 1) / 2;
   PriorityQueueNode* parent = &priority_queue->_nodes[parent_idx];
   PriorityQueueNode* this = &priority_queue->_nodes[idx];
-
-  if (this->weight > parent->weight) {
+  
+  if (this->weight < parent->weight) {
     return; 
   }
 
@@ -245,7 +245,7 @@ void insert_recurse(PriorityQueue* priority_queue, int idx) {
 void insert_priority_queue(PriorityQueue* priority_queue, const PriorityQueueNode* node) {
   priority_queue->_nodes[priority_queue->length] = *node;
   priority_queue->length += 1;
-
+  
   if (priority_queue->length == priority_queue->_max_nodes) {
     PriorityQueueNode* new_queue_nodes = malloc(priority_queue->_max_nodes * 2 * sizeof(PriorityQueueNode));
    
@@ -303,9 +303,9 @@ void print_priority_queue(PriorityQueue* priority_queue, PrintStructFunction fn)
   if (priority_queue->length == 0) return;
 
   int bottom_nodes = ceil(log2(priority_queue->length))+1;
-  int max_node_width_estimate = magic(priority_queue->_nodes[priority_queue->length-1].weight);
+  int max_node_width = magic(priority_queue->_nodes[0].weight);
 
-  printf("%d \n", max_node_width_estimate);
+  printf("%d \n", max_node_width);
   
   int i = 1;
 
@@ -324,7 +324,7 @@ void print_priority_queue(PriorityQueue* priority_queue, PrintStructFunction fn)
       
       char padded_str[16];
 
-      left_pad(node_str, padded_str, magic(node_value), max_node_width_estimate);
+      left_pad(node_str, padded_str, magic(node_value), max_node_width);
       
       printf("%s ", padded_str);
     }
@@ -333,9 +333,9 @@ void print_priority_queue(PriorityQueue* priority_queue, PrintStructFunction fn)
   }
 }
 
-#define greater_than_left (current_node->weight > left_node->weight)
-#define greater_than_right (current_node->weight > right_node->weight)
-#define left_greater (left_node->weight > right_node->weight)
+#define smaller_than_left (current_node->weight < left_node->weight)
+#define smaller_than_right (current_node->weight < right_node->weight)
+#define left_smaller (left_node->weight < right_node->weight)
 
 void pop_priority_queue_recurse(PriorityQueue* priority_queue, int node) {
   if (node >= priority_queue->length) return; 
@@ -351,18 +351,18 @@ void pop_priority_queue_recurse(PriorityQueue* priority_queue, int node) {
   const bool left_null = left_idx >= priority_queue->length;
   const bool right_null = right_idx >= priority_queue->length; 
 
-  if (!left_null && greater_than_left && (!left_greater || !greater_than_right)) {
+  if (!left_null && smaller_than_left && (!left_smaller || !smaller_than_right)) {
     swap_nodes(left_node, current_node); 
     pop_priority_queue_recurse(priority_queue, left_idx);
-  } else if (!right_null && greater_than_right && (left_greater || !greater_than_left)) {
+  } else if (!right_null && smaller_than_right && (left_smaller || !smaller_than_left)) {
     swap_nodes(right_node, current_node); 
     pop_priority_queue_recurse(priority_queue, right_idx);
   }
 }
 
-#undef greater_than_right
+#undef smaller_than_right
 #undef greater_than_left
-#undef left_greater
+#undef left_smaller
 
 PriorityQueueNode pop_priority_queue(PriorityQueue* priority_queue) {
   if (priority_queue->length == 0) {

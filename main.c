@@ -81,7 +81,7 @@ int main() {
 
   printf("\n");
 
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 5; i++) {
     pop_priority_queue(priority_queue);
     print_priority_queue(priority_queue, NULL);
   }
