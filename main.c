@@ -1,4 +1,4 @@
-#include "data_structures.h"
+#include "src/data_structures.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
