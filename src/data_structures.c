@@ -160,7 +160,7 @@ Byte* enqueue_ring_buffer(RingBuffer* ring_buffer, const Byte* node) {
 
   ring_buffer->_end %= ring_buffer->_max_nodes;
 
-  return (Byte*)ring_buffer->_buffer + length * ring_buffer->_node_size - 1;
+  return (Byte*)ring_buffer->_buffer + (length - 1) * ring_buffer->_node_size;
 }
 
 const Byte* dequeue_ring_buffer(RingBuffer* ring_buffer) {
