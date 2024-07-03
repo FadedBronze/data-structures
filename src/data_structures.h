@@ -14,7 +14,7 @@ typedef struct RingBuffer {
 
 RingBuffer* create_ring_buffer(int node_size);
 
-void enqueue_ring_buffer(RingBuffer* ring_buffer, const Byte* node);
+Byte* enqueue_ring_buffer(RingBuffer* ring_buffer, const Byte* node);
 
 const Byte* dequeue_ring_buffer(RingBuffer* ring_buffer);
 

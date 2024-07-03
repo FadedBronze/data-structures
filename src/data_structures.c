@@ -125,12 +125,10 @@ Byte* _get_nth(RingBuffer* ring_buffer, int nth) {
   return (Byte*)ring_buffer->_buffer + idx * ring_buffer->_node_size;
 }
 
-void enqueue_ring_buffer(RingBuffer* ring_buffer, const Byte* node) {
+Byte* enqueue_ring_buffer(RingBuffer* ring_buffer, const Byte* node) {
   const int length = get_length_ring_buffer(ring_buffer); 
  
-  printf("hi %i\n", length);
   memcpy(_get_nth(ring_buffer, length), node, ring_buffer->_node_size);
-  printf("hi2\n");
 
   ring_buffer->_end += 1; 
   
@@ -140,8 +138,6 @@ void enqueue_ring_buffer(RingBuffer* ring_buffer, const Byte* node) {
     const int end = ring_buffer->_end; 
 
     Byte* new_buffer = malloc(ring_buffer->_node_size * max_nodes * 2);
-
-    printf("reallocation\n");
 
     if (start < end) {
       memcpy(new_buffer, ring_buffer->_buffer + start * ring_buffer->_node_size, ring_buffer->_node_size * (end - start)); 
@@ -163,6 +159,8 @@ void enqueue_ring_buffer(RingBuffer* ring_buffer, const Byte* node) {
   }
 
   ring_buffer->_end %= ring_buffer->_max_nodes;
+
+  return (Byte*)ring_buffer->_buffer + length * ring_buffer->_node_size - 1;
 }
 
 const Byte* dequeue_ring_buffer(RingBuffer* ring_buffer) {
