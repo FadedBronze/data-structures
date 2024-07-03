@@ -86,17 +86,18 @@ void quick_sort(int* array, int start, int end) {
 
 //ring buffer list
 
-RingBuffer* create_ring_buffer() {
+RingBuffer* create_ring_buffer(int node_size) {
   int max_nodes = 8;
   RingBuffer* ring_buffer = malloc(sizeof(RingBuffer));
-  RingBufferNode* nodes = malloc(sizeof(RingBufferNode) * max_nodes);
+  char* nodes = malloc(node_size * max_nodes);
 
   RingBuffer buffer;
   buffer._start = 0;
   buffer._end = 0;
   buffer._max_nodes = 8;
   buffer._buffer = nodes;
-
+  buffer._node_size = node_size;
+ 
   *ring_buffer = buffer;
 
   return ring_buffer;
@@ -110,26 +111,26 @@ int get_length_ring_buffer(RingBuffer* ring_buffer) {
   }
 }
 
-const RingBufferNode* get_nth_ring_buffer(RingBuffer* ring_buffer, int nth) {
+const Byte* get_nth_ring_buffer(RingBuffer* ring_buffer, int nth) {
   const int idx = (ring_buffer->_start + nth) % ring_buffer->_max_nodes;
   if (idx >= get_length_ring_buffer(ring_buffer)) {
     fprintf(stderr, "out of bounds\n");
     return NULL;
   } 
-  RingBufferNode* node_ref = &ring_buffer->_buffer[idx];
-  return node_ref;
+  return (Byte*)&ring_buffer->_buffer + idx * ring_buffer->_node_size;
 }
 
-RingBufferNode* _get_nth(RingBuffer* ring_buffer, int nth) { 
+Byte* _get_nth(RingBuffer* ring_buffer, int nth) {
   const int idx = (ring_buffer->_start + nth) % ring_buffer->_max_nodes;
-  RingBufferNode* node_ref = &ring_buffer->_buffer[idx];
-  return node_ref;
+  return (Byte*)ring_buffer->_buffer + idx * ring_buffer->_node_size;
 }
 
-void enqueue_ring_buffer(RingBuffer* ring_buffer, const RingBufferNode* node) {
+void enqueue_ring_buffer(RingBuffer* ring_buffer, const Byte* node) {
   const int length = get_length_ring_buffer(ring_buffer); 
-  
-  *_get_nth(ring_buffer, length) = *node;
+ 
+  printf("hi %i\n", length);
+  memcpy(_get_nth(ring_buffer, length), node, ring_buffer->_node_size);
+  printf("hi2\n");
 
   ring_buffer->_end += 1; 
   
@@ -138,20 +139,20 @@ void enqueue_ring_buffer(RingBuffer* ring_buffer, const RingBufferNode* node) {
     const int start = ring_buffer->_start; 
     const int end = ring_buffer->_end; 
 
-    RingBufferNode* new_buffer = malloc(sizeof(RingBufferNode) * max_nodes * 2);
+    Byte* new_buffer = malloc(ring_buffer->_node_size * max_nodes * 2);
 
     printf("reallocation\n");
 
     if (start < end) {
-      memcpy(new_buffer, &ring_buffer->_buffer[start], sizeof(RingBufferNode) * end); 
+      memcpy(new_buffer, ring_buffer->_buffer + start * ring_buffer->_node_size, ring_buffer->_node_size * (end - start)); 
 
       ring_buffer->_end -= ring_buffer->_start;
       ring_buffer->_start = 0;
     } else {
       const int end_difference = (max_nodes - start);
 
-      memcpy(new_buffer, &ring_buffer->_buffer[start], sizeof(RingBufferNode) * end_difference); 
-      memcpy(&new_buffer[end_difference], &ring_buffer->_buffer[0], sizeof(RingBufferNode) * end); 
+      memcpy(new_buffer, ring_buffer->_buffer + start * ring_buffer->_node_size, ring_buffer->_node_size * end_difference); 
+      memcpy(new_buffer + end_difference * ring_buffer->_node_size, ring_buffer->_buffer, ring_buffer->_node_size * end); 
    
       ring_buffer->_end = end_difference + end;
       ring_buffer->_start = 0;
@@ -164,13 +165,13 @@ void enqueue_ring_buffer(RingBuffer* ring_buffer, const RingBufferNode* node) {
   ring_buffer->_end %= ring_buffer->_max_nodes;
 }
 
-const RingBufferNode* dequeue_ring_buffer(RingBuffer* ring_buffer) {
+const Byte* dequeue_ring_buffer(RingBuffer* ring_buffer) {
   if (get_length_ring_buffer(ring_buffer) == 0) {
     fprintf(stderr, "none left\n"); 
     return NULL;
   }
 
-  RingBufferNode* node = _get_nth(ring_buffer, 0);
+  Byte* node = _get_nth(ring_buffer, 0);
   ring_buffer->_start += 1;
   
   ring_buffer->_start %= ring_buffer->_max_nodes;
@@ -182,19 +183,20 @@ void print_ring_buffer(RingBuffer* ring_buffer, PrintStructFunction fn) {
   const int length = get_length_ring_buffer(ring_buffer);
   
   printf("Properties:\n");
+  printf("  _node_size: %i\n", ring_buffer->_node_size); 
   printf("  _start: %i\n", ring_buffer->_start); 
   printf("  _end: %i\n", ring_buffer->_end); 
   printf("  _max_nodes: %i\n", ring_buffer->_max_nodes); 
 
   printf("\nNodes (%i): \n", length);
   for (int i = 0; i < length; i++) {
-    RingBufferNode node = *_get_nth(ring_buffer, i);
+    Byte* node = _get_nth(ring_buffer, i);
 
     if (fn == NULL) {
-      printf("ref: %p\n", node.ref); 
+      printf("ref: %p\n", node); 
     } else {
       printf("  "); 
-      fn(node.ref);
+      fn(node);
     }
   }
 }

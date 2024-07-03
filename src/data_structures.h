@@ -2,24 +2,23 @@
 
 //ring buffer
 
-typedef struct RingBufferNode {
-  const void* ref;
-} RingBufferNode;
+typedef char Byte;
 
 typedef struct RingBuffer {
   int _start;
   int _end;
   int _max_nodes;
-  RingBufferNode* _buffer;
+  int _node_size;
+  Byte* _buffer;
 } RingBuffer;
 
-RingBuffer* create_ring_buffer();
+RingBuffer* create_ring_buffer(int node_size);
 
-void enqueue_ring_buffer(RingBuffer* ring_buffer, const RingBufferNode* node);
+void enqueue_ring_buffer(RingBuffer* ring_buffer, const Byte* node);
 
-const RingBufferNode* dequeue_ring_buffer(RingBuffer* ring_buffer);
+const Byte* dequeue_ring_buffer(RingBuffer* ring_buffer);
 
-const RingBufferNode* get_nth_ring_buffer(RingBuffer* ring_buffer, int nth);
+const Byte* get_nth_ring_buffer(RingBuffer* ring_buffer, int nth);
 
 int get_length_ring_buffer(RingBuffer* ring_buffer);
 

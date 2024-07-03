@@ -5,7 +5,7 @@
 
 void print_string(const void* ref) {
   char* msg = (char*)ref;
-  printf("%s\n", msg);
+  printf("%s", msg);
 }
 
 int main() {
@@ -33,56 +33,59 @@ int main() {
 //    printf("\n");
 //  } 
 
-//  const char* msg = "hello node\n";
-// 
-//  RingBuffer* ring_buffer = create_ring_buffer();
-//  RingBufferNode node;
-//  node.ref = (void*)msg;
-//
-//  srand(time(NULL)); 
-//    int num = rand();
-//
-//  for (int i = 0; i < 200; i++) {
-//    
-//    enqueue_ring_buffer(ring_buffer, &node);
-//
-//    if (i % 5 == 0) {   
-//      dequeue_ring_buffer(ring_buffer);
-//    }
-//
-//    print_ring_buffer(ring_buffer, print_string);
-//  }
+  const char* msg = "hello\n";
+ 
+  RingBuffer* ring_buffer = create_ring_buffer(7 * sizeof(char));
 
-  srand(time(NULL));
+  print_ring_buffer(ring_buffer, print_string);
+ 
+  srand(time(NULL)); 
+    int num = rand();
 
-  const char* msg = "hello node\n";
+  for (int i = 0; i < 200; i++) { 
+    enqueue_ring_buffer(ring_buffer, msg);
+    print_ring_buffer(ring_buffer, print_string);
 
-  PriorityQueue* priority_queue = create_priority_queue();
-  PriorityQueueNode node;
-  node.weight = 10;
-  node.ref = &msg;
+    if (i % 5 == 0) {   
+      dequeue_ring_buffer(ring_buffer);
+      dequeue_ring_buffer(ring_buffer);
+      dequeue_ring_buffer(ring_buffer);
+      dequeue_ring_buffer(ring_buffer);
+    }
 
-  int weights[15] = {
-    65.439211, 45.240230, 73.679106, 32.724546, 57.011320, 79.407455, 12.671959, 
-    8.007067, 29.711250, 40.309439, 14.375607, 96.259111, 67.360604, 68.047627, 51.185252 
-  };
-  
-  for (int i = 0; i < 15; i++) {
-    double num = (double)rand();
-    double max_double = RAND_MAX;
-    double random_num = num/max_double * 100;
-    node.weight = random_num;
-
-    printf("%f ", random_num);
-
-    insert_priority_queue(priority_queue, &node);
-    print_priority_queue(priority_queue, NULL);
-  }  
-
-  printf("\n");
-
-  for (int i = 0; i < 5; i++) {
-    pop_priority_queue(priority_queue);
-    print_priority_queue(priority_queue, NULL);
+    print_ring_buffer(ring_buffer, print_string);
   }
+
+//  srand(time(NULL));
+//
+//  const char* msg = "hello node\n";
+//
+//  PriorityQueue* priority_queue = create_priority_queue();
+//  PriorityQueueNode node;
+//  node.weight = 10;
+//  node.ref = &msg;
+//
+//  int weights[15] = {
+//    65.439211, 45.240230, 73.679106, 32.724546, 57.011320, 79.407455, 12.671959, 
+//    8.007067, 29.711250, 40.309439, 14.375607, 96.259111, 67.360604, 68.047627, 51.185252 
+//  };
+//  
+//  for (int i = 0; i < 15; i++) {
+//    double num = (double)rand();
+//    double max_double = RAND_MAX;
+//    double random_num = num/max_double * 100;
+//    node.weight = random_num;
+//
+//    printf("%f ", random_num);
+//
+//    insert_priority_queue(priority_queue, &node);
+//    print_priority_queue(priority_queue, NULL);
+//  }  
+//
+//  printf("\n");
+//
+//  for (int i = 0; i < 5; i++) {
+//    pop_priority_queue(priority_queue);
+//    print_priority_queue(priority_queue, NULL);
+//  }
 }

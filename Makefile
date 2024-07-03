@@ -1,14 +1,14 @@
 OUT=./dist
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-Wall -g
 
 build:
 	mkdir -p $(OUT)
-	$(CC) -c $(CFLAGS) -g ./src/*.c -lm -o $(OUT)/data_structures.o
+	$(CC) -c $(CFLAGS) ./src/*.c -lm -o $(OUT)/data_structures.o
 test:
 	make
-	$(CC) -c $(CFLAGS) -g ./main.c -o $(OUT)/main.o
-	$(CC) $(OUT)/main.o $(OUT)/data_structures.o -lm -o $(OUT)/test
+	$(CC) -c $(CFLAGS) ./main.c -o $(OUT)/main.o
+	$(CC) $(CFLAGS) $(OUT)/main.o $(OUT)/data_structures.o -lm -o $(OUT)/test
 run-test:
 	$(OUT)/test
 clean:
